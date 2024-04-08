@@ -12,10 +12,10 @@ public class MedicalRecord {
         setLocation(location);
         this.treatmentDetails = treatmentDetails;
 
-        // Check if the treatmentDetails string matches the expected date format
         if (!isValidDateFormat(dateOfTreatment)) {
             throw new IllegalArgumentException("Invalid date format for treatment details. Expected format: YYYY-MM-DD");
         }
+
         this.dateOfTreatment = dateOfTreatment;
     }
 

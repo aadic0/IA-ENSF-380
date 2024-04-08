@@ -5,6 +5,8 @@ public class FamilyRelation {
     private String relationshipTo;
     private DisasterVictim personTwo;
 
+// PARENTS/CHILD, SIBLINGS, SPOUSE
+
     // Constructor
     public FamilyRelation(DisasterVictim personOne, String relationshipTo, DisasterVictim personTwo) {
         this.personOne = personOne;

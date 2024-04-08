@@ -1,6 +1,7 @@
 package edu.ucalgary.oop;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class ReliefService {
     private Inquirer inquirer;
@@ -8,6 +9,9 @@ public class ReliefService {
     private String dateOfInquiry;
     private String infoProvided;
     private Location lastKnownLocation;
+    private ArrayList<String> callerHistory = new ArrayList<>(); // INQUIERER LIST APPEND EVERY TIME AN INQUIERER CALLS. This way a new inquirer object isnt made every time the same person calls
+
+
 
     // Constructor
     public ReliefService(Inquirer inquirer, DisasterVictim missingPerson, String dateOfInquiry, String infoProvided, Location lastKnownLocation) {
@@ -18,13 +22,28 @@ public class ReliefService {
         this.lastKnownLocation = lastKnownLocation;
     }
 
+    // Getter for callerHistory
+    // shouldn't need setter, as setInquirer automatically appends new caller to it.
+    public ArrayList<String> getCallerHistory(){
+        return callerHistory;
+    }
+
     // Getter and setter for inquirer
     public Inquirer getInquirer() {
         return inquirer;
     }
 
     public void setInquirer(Inquirer inquirer) {
+        
+        for (String caller: callerHistory){
+            if (inquirer.getCallerPhoneNum() == caller){
+                return;
+            }
+        }
+
         this.inquirer = inquirer;
+        String phone = inquirer.getCallerPhoneNum();
+        callerHistory.add(phone);
     }
 
     // Getter and setter for missingPerson

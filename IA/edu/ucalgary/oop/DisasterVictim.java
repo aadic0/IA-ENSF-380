@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.time.LocalDate;
-
+import java.util.Set;
 
 public class DisasterVictim {
     private static int counter = 0;
@@ -13,7 +13,8 @@ public class DisasterVictim {
     private String lastName;
     private String dateOfBirth;
     private final int ASSIGNED_SOCIAL_ID;
-    private ArrayList<FamilyRelation> familyConnections = new ArrayList<>();
+    private Set<FamilyRelation> familyConnections; // kept as a set to avoid duplicates
+    private List<DisasterVictim> interFamilyRelations; // used to check for missing relationships that we should have
     private ArrayList<MedicalRecord> medicalRecords = new ArrayList<>();
     private Supply[] personalBelongings;
     private final String ENTRY_DATE;
@@ -27,7 +28,7 @@ public class DisasterVictim {
         }
         this.ENTRY_DATE = ENTRY_DATE;
         this.ASSIGNED_SOCIAL_ID = generateSocialID();
-        
+
     }
 
     private static int generateSocialID() {
@@ -40,7 +41,6 @@ public class DisasterVictim {
         return date.matches(dateFormatPattern);
     }
 
-  
     // Getters and setters
 
     public String getFirstName() {
@@ -87,14 +87,16 @@ public class DisasterVictim {
     }
 
     // The add and remove methods remain correct.
-    
+
     // Correct the setters to accept Lists instead of arrays
-    public void setFamilyConnections(FamilyRelation[] connections) {
-        this.familyConnections.clear();
-        for (FamilyRelation newRecord : connections) {
-            addFamilyConnection(newRecord);
-        }
+public void setFamilyConnections(FamilyRelation[] connections) {
+    this.familyConnections.clear();
+    for (int i = 0; i < connections.length; i++) {
+        FamilyRelation newRecord = connections[i];
+        newRecord.getPersonOne().addFamilyConnection(newRecord.getPersonTwo(), newRecord.getRelationshipTo());
     }
+}
+
 
     public void setMedicalRecords(MedicalRecord[] records) {
         this.medicalRecords.clear();
@@ -151,10 +153,40 @@ public class DisasterVictim {
         familyConnections.remove(exRelation);
     }
 
-    public void addFamilyConnection(FamilyRelation record) {
-        familyConnections.add(record);
+    // Bidirectional linking to ensure consistency
+    public void addFamilyConnection(DisasterVictim person, String relationshipTo) {
+        // SUPPORTS PARENT/CHILD, SIBLING/SIBLING, HUSBAND/WIFE, SPOUSE/SPOUSE
+        if (interFamilyRelations.contains(person)){ return; } // Case where relationship already exists
+
+        FamilyRelation relation = new FamilyRelation(this, relationshipTo, person);
+
+        if (!familyConnections.add(relation)){ // Cool little piece of code that checks if it can be added to a set (its unique in that case) or if its a duplicate (sets cant contain duplicates)
+            return;
+        }
+
+        interFamilyRelations.add(person);
+        person.interFamilyRelations.add(this);
+        familyConnections.add(relation);
+        person.addFamilyConnection(this, generateInverseRelationship(relationshipTo));
     }
 
+
+    private String generateInverseRelationship(String relationshipTo){
+        switch (relationshipTo.toLowerCase()) {
+            case "parent":
+                return "child";
+            case "sibling":
+                return "sibling";
+            case "husband":
+                return "wife";
+            case "wife":
+                return "husband";
+            case "spouse":
+                return "spouse";
+            default:
+                return "";
+        }
+    }
 
     // Add a MedicalRecord to medicalRecords
     public void addMedicalRecord(MedicalRecord record) {
@@ -186,8 +218,3 @@ public class DisasterVictim {
 
    
 }
-
-
-
-
-

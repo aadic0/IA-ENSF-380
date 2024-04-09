@@ -2,6 +2,16 @@ package edu.ucalgary.oop;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Collection;
+import java.util.Collections;
+
 
 public class DisasterVictim implements EnterDisasterVictim {
     private static int counter = 0;
@@ -17,6 +27,8 @@ public class DisasterVictim implements EnterDisasterVictim {
     private final String ENTRY_DATE;
     private String gender;
     private String comments;
+    private String age; // has logic in the setters and getters that prevents both dob and age coexisting
+
 
     public DisasterVictim(String firstName, String ENTRY_DATE) {
         this.firstName = firstName;
@@ -25,6 +37,7 @@ public class DisasterVictim implements EnterDisasterVictim {
         }
         this.ENTRY_DATE = ENTRY_DATE;
         this.ASSIGNED_SOCIAL_ID = generateSocialID();
+        this.dietaryRestrictions = new HashSet<>();
     }
 
     private static int generateSocialID() {
@@ -60,10 +73,22 @@ public class DisasterVictim implements EnterDisasterVictim {
     }
 
     public void setDateOfBirth(String dateOfBirth) {
-        if (!isValidDateFormat(dateOfBirth)) {
-            throw new IllegalArgumentException("Invalid date format for date of birth. Expected format: YYYY-MM-DD");
+        if (getAge() == null){
+            if (!isValidDateFormat(dateOfBirth)) {
+                throw new IllegalArgumentException("Invalid date format for date of birth. Expected format: YYYY-MM-DD");
+            }
+            this.dateOfBirth = dateOfBirth;
         }
-        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getAge(){
+        return age;
+    }
+
+    public void setAge(String age){
+        if (getDateOfBirth() != null){
+            this.age = age;
+        }
     }
 
     public int getAssignedSocialID() {
@@ -178,11 +203,73 @@ public void setFamilyConnections(FamilyRelation[] connections) {
         return gender;
     }
 
-    public void setGender(String gender) {
-        if (!gender.matches("(?i)^(male|female|other)$")) {
-            throw new IllegalArgumentException("Invalid gender. Acceptable values are male, female, or other.");
+    private Set<String> loadGenderOptions() throws IOException {
+        Set<String> options = new HashSet<>();
+        Path filePath = Paths.get("GenderOptions.txt"); // Assuming file is in the same directory
+
+        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim(); // Remove leading/trailing whitespace
+                if (!line.isEmpty()) {
+                    options.add(line.toLowerCase()); // Store options in lowercase for case-insensitive comparison
+                }
+            }
+        }
+
+        return options;
+    }
+
+    public void setGender(String gender) throws IllegalArgumentException, IOException {
+        if (!gender.matches("(?i)^(other)$")) { // Allow "other" without file validation
+            Set<String> validGenderOptions;
+            try {
+                validGenderOptions = loadGenderOptions(); // Load options, handle potential IOException
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Error loading gender options: " + e.getMessage(), e); // Re-throw as IllegalArgumentException with cause
+            }
+            if (!validGenderOptions.contains(gender.toLowerCase())) {
+                throw new IllegalArgumentException("Invalid gender. Please choose from options in GenderOptions.txt or 'other'.");
+            }
         }
         this.gender = gender.toLowerCase(); // Store in a consistent format
+    }
+    
+    private Set<DietaryRestriction> dietaryRestrictions; // Set to store dietary restrictions
+
+    public void addDietaryRestriction(DietaryRestriction restriction) {
+        dietaryRestrictions.add(restriction);
+    }
+
+    public void removeDietaryRestriction(DietaryRestriction restriction) {
+        dietaryRestrictions.remove(restriction);
+    }
+
+    public Set<DietaryRestriction> getDietaryRestrictions() {
+        return Collections.unmodifiableSet(dietaryRestrictions); // Return unmodifiable set to prevent external modification
+    }
+
+    // New enumeration for dietary restrictions
+    public enum DietaryRestriction {
+        AVML("Asian vegetarian meal"),
+        DBML("Diabetic meal"),
+        GFML("Gluten intolerant meal"),
+        KSML("Kosher meal"),
+        LSML("Low salt meal"),
+        MOML("Muslim meal"),
+        PFML("Peanut-free meal"),
+        VGML("Vegan meal"),
+        VJML("Vegetarian Jain meal");
+
+        private final String description;
+
+        DietaryRestriction(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
 
 }

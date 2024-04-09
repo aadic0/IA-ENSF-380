@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Collection;
 import java.util.Collections;
-
+import java.util.Arrays;
 
 public class DisasterVictim implements EnterDisasterVictim {
     private static int counter = 0;
@@ -30,7 +30,7 @@ public class DisasterVictim implements EnterDisasterVictim {
     private String age; // has logic in the setters and getters that prevents both dob and age coexisting
 
 
-    public DisasterVictim(String firstName, String ENTRY_DATE) {
+    public DisasterVictim(String firstName, String ENTRY_DATE) { // for testing
         this.firstName = firstName;
         if (!isValidDateFormat(ENTRY_DATE)) {
             throw new IllegalArgumentException("Invalid date format for entry date. Expected format: YYYY-MM-DD");
@@ -39,6 +39,20 @@ public class DisasterVictim implements EnterDisasterVictim {
         this.ASSIGNED_SOCIAL_ID = generateSocialID();
         this.dietaryRestrictions = new HashSet<>();
     }
+
+
+    public DisasterVictim(){ // Using interface
+
+        this.firstName = enterDisasterVictimFirstName();
+        this.ASSIGNED_SOCIAL_ID = generateSocialID();
+        String testDate = enterDisasterVictimDate();
+        if (!isValidDateFormat(testDate)) {
+            throw new IllegalArgumentException("Invalid date format for entry date. Expected format: YYYY-MM-DD");
+        }
+        this.ENTRY_DATE = testDate;
+    }
+
+
 
     private static int generateSocialID() {
         counter++;
@@ -234,7 +248,7 @@ public void setFamilyConnections(FamilyRelation[] connections) {
         }
         this.gender = gender.toLowerCase(); // Store in a consistent format
     }
-    
+
     private Set<DietaryRestriction> dietaryRestrictions; // Set to store dietary restrictions
 
     public void addDietaryRestriction(DietaryRestriction restriction) {

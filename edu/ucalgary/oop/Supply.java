@@ -18,6 +18,8 @@ public class Supply {
         return quantity;
     }
 
+    
+
     // Allocate a supply to a DisasterVictim, removing it from the location's inventory
     public void allocateToVictim(DisasterVictim victim, Location location) {
         if (quantity > 0) {

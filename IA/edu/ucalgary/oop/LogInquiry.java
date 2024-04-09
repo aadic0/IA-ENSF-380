@@ -1,18 +1,20 @@
 package edu.ucalgary.oop;
-
 import java.util.Scanner;
 
 public interface LogInquiry{
 
+    // public void CaseDecider(){
+    //     pass;
+    // }
+
     Scanner scannerLogInquiry = new Scanner(System.in);
+
 
     default String setFirstName(){
 
         System.out.print("Enter first name: ");
         String firstName = scannerLogInquiry.nextLine();
-
         return firstName;
-        
     }
 
     default String setLastName(){
@@ -39,23 +41,10 @@ public interface LogInquiry{
         return personalPhone;
     }
 
-    
-    default void searchInquiry(String keywordString, String FIRST_NAME, String LAST_NAME, String INFO, String SERVICES_PHONE, String CALLER_PHONE_NUMBER) {
-        keywordString = keywordString.toLowerCase(); // Convert keyword to lowercase for case-insensitive search
-
-        boolean foundMatch = false;
-
-        if (FIRST_NAME.toLowerCase().contains(keywordString) ||
-            LAST_NAME.toLowerCase().contains(keywordString) ||
-            INFO.toLowerCase().contains(keywordString) ||
-            SERVICES_PHONE.toLowerCase().contains(keywordString) ||
-            CALLER_PHONE_NUMBER.toLowerCase().contains(keywordString)) {
-            foundMatch = true;
-            // Handle the matched inquiry here (e.g., print details, perform actions)
-        }
-
-        if (foundMatch) {
-            System.out.println("Based on the keywords, the search yielded this name: " + FIRST_NAME);
-        }
+    default String setInquirerType(){
+        System.out.println("Are you a central based or location based worker (central/location): ");
+        String type = scannerLogInquiry.nextLine();
+        return type;
     }
+
 }

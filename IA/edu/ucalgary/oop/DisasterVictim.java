@@ -1,12 +1,9 @@
 package edu.ucalgary.oop;
-
 import java.util.List;
-import java.util.Arrays;
 import java.util.ArrayList;
-import java.time.LocalDate;
 import java.util.Set;
 
-public class DisasterVictim {
+public class DisasterVictim implements EnterDisasterVictim {
     private static int counter = 0;
 
     private String firstName;
@@ -16,7 +13,7 @@ public class DisasterVictim {
     private Set<FamilyRelation> familyConnections; // kept as a set to avoid duplicates
     private List<DisasterVictim> interFamilyRelations; // used to check for missing relationships that we should have
     private ArrayList<MedicalRecord> medicalRecords = new ArrayList<>();
-    private Supply[] personalBelongings;
+    private ArrayList<Supply> personalBelongings;
     private final String ENTRY_DATE;
     private String gender;
     private String comments;
@@ -28,7 +25,6 @@ public class DisasterVictim {
         }
         this.ENTRY_DATE = ENTRY_DATE;
         this.ASSIGNED_SOCIAL_ID = generateSocialID();
-
     }
 
     private static int generateSocialID() {
@@ -82,7 +78,7 @@ public class DisasterVictim {
         return medicalRecords.toArray(new MedicalRecord[0]);
     }
 
-    public Supply[] getPersonalBelongings() {
+    public ArrayList<Supply> getPersonalBelongings() {
         return this.personalBelongings;
     }
 
@@ -105,48 +101,21 @@ public void setFamilyConnections(FamilyRelation[] connections) {
         }
     }
 
-    public void setPersonalBelongings(Supply[] belongings) {
+    public void setPersonalBelongings(ArrayList<Supply> belongings) {
         this.personalBelongings = belongings;
     }
 
     // Add a Supply to personalBelonging
     public void addPersonalBelonging(Supply supply) {
 
-        if (this.personalBelongings == null) {
-            Supply tmpSupply[] = { supply };
-            this.setPersonalBelongings(tmpSupply);
-            return;
+        personalBelongings.add(supply);
+    
         }
 
-        // Create an array one larger than the previous array
-        int newLength = this.personalBelongings.length + 1;
-        Supply tmpPersonalBelongings[] = new Supply[newLength];
-
-        // Copy all the items in the current array to the new array
-        int i;
-        for (i=0; i < personalBelongings.length; i++) {
-            tmpPersonalBelongings[i] = this.personalBelongings[i];
-        }
-
-        // Add the new element at the end of the new array
-        tmpPersonalBelongings[i] = supply;
-
-        // Replace the original array with the new array
-        this.personalBelongings = tmpPersonalBelongings;
-    }
 
     // Remove a Supply from personalBelongings, we assume it only appears once
     public void removePersonalBelonging(Supply unwantedSupply) {
-        Supply[] updatedBelongings = new Supply[personalBelongings.length-1];
-        int index = 0;
-        int newIndex = index;
-        for (Supply supply : personalBelongings) {
-            if (!supply.equals(unwantedSupply)) {
-                updatedBelongings[newIndex] = supply;
-                newIndex++;
-            }
-            index++;
-        }
+        personalBelongings.remove(unwantedSupply);
     }
 
     public void removeFamilyConnection(FamilyRelation exRelation) {
@@ -216,5 +185,4 @@ public void setFamilyConnections(FamilyRelation[] connections) {
         this.gender = gender.toLowerCase(); // Store in a consistent format
     }
 
-   
 }
